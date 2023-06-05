@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"gitlab.com/coffee-shop5860322/api/controllers"
-	"gitlab.com/coffee-shop5860322/api/initializers"
-	"gitlab.com/coffee-shop5860322/api/middleware"
+	"github.com/naqeeb8a/Coffee-shop/controllers"
+	"github.com/naqeeb8a/Coffee-shop/initializers"
+	"github.com/naqeeb8a/Coffee-shop/middleware"
 )
 
 func init() {

@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.com/coffee-shop5860322/api/initializers"
-	"gitlab.com/coffee-shop5860322/api/models"
+	"github.com/naqeeb8a/Coffee-shop/initializers"
+	"github.com/naqeeb8a/Coffee-shop/models"
 )
 
 func AddFavourite(c *gin.Context) {

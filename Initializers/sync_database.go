@@ -1,6 +1,6 @@
 package initializers
 
-import "gitlab.com/coffee-shop5860322/api/models"
+import "github.com/naqeeb8a/Coffee-shop/models"
 
 func SyncDatabase() {
 	DB.AutoMigrate(&models.User{})

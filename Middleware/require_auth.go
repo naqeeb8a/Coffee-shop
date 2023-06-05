@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
-	initializers "gitlab.com/coffee-shop5860322/api/initializers"
-	models "gitlab.com/coffee-shop5860322/api/models"
+	initializers "github.com/naqeeb8a/Coffee-shop/initializers"
+	models "github.com/naqeeb8a/Coffee-shop/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"

@@ -1,4 +1,4 @@
-module gitlab.com/coffee-shop5860322/api
+module github.com/naqeeb8a/Coffee-shop
 
 go 1.20
 
