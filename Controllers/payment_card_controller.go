@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/naqeeb9a/coffee-shop-apis/initializers"
-	"github.com/naqeeb9a/coffee-shop-apis/models"
+	"gitlab.com/coffee-shop5860322/api/initializers"
+	"gitlab.com/coffee-shop5860322/api/models"
 )
 
 func AllPaymentCards(c *gin.Context) {
