@@ -44,5 +44,10 @@ func main() {
 	r.GET("/paymentCard", middleware.RequireAuth, controllers.AllPaymentCards)
 	r.POST("/paymentCard/add", middleware.RequireAuth, controllers.AddPaymentCards)
 	r.DELETE("/paymentCard/remove", middleware.RequireAuth, controllers.RemovePaymentCard)
+	r.GET("/offer", middleware.RequireAuth, controllers.AllOffers)
+	r.POST("/offer/add", middleware.RequireAuth, controllers.AddOffer)
+	r.PUT("/offer/edit", middleware.RequireAuth, controllers.Editoffer)
+	r.DELETE("/offer/remove", middleware.RequireAuth, controllers.RemoveOffer)
+	r.GET("/availedOffer/add", middleware.RequireAuth, controllers.AddOfferAvailedUser)
 	r.Run()
 }
