@@ -1,10 +1,11 @@
 package main
 
 import (
+	"coffee-shop.com/api/controllers"
+	"coffee-shop.com/api/initializers"
+	"coffee-shop.com/api/middleware"
+
 	"github.com/gin-gonic/gin"
-	"github.com/naqeeb8a/Coffee-shop/controllers"
-	"github.com/naqeeb8a/Coffee-shop/initializers"
-	"github.com/naqeeb8a/Coffee-shop/middleware"
 )
 
 func init() {
@@ -16,6 +17,8 @@ func init() {
 func main() {
 
 	r := gin.Default()
+	r.Static("/assets", "./assets")
+	r.MaxMultipartMemory = 8 << 20 // 8 MiB
 	r.POST("/user/signup", controllers.SignUp)
 	r.POST("/user/login", controllers.Login)
 	r.PUT("/user/edit", middleware.RequireAuth, controllers.EditUser)
@@ -24,10 +27,12 @@ func main() {
 	r.GET("/category", middleware.RequireAuth, controllers.AllCategories)
 	r.POST("/category/add", middleware.RequireAuth, controllers.AddCategory)
 	r.PUT("/category/edit", middleware.RequireAuth, controllers.EditCategory)
+	r.DELETE("/category/remove", middleware.RequireAuth, controllers.RemoveCategory)
 	r.GET("/category/item", middleware.RequireAuth, controllers.CategoryItem)
 	r.GET("/item", middleware.RequireAuth, controllers.AllItems)
 	r.POST("/item/add", middleware.RequireAuth, controllers.AddItem)
 	r.PUT("/item/edit", middleware.RequireAuth, controllers.EditItem)
+	r.DELETE("/item/remove", middleware.RequireAuth, controllers.RemoveItem)
 	r.GET("/item/details", middleware.RequireAuth, controllers.ItemDetails)
 	r.GET("/favourite", middleware.RequireAuth, controllers.AllFavouriteItems)
 	r.POST("/favourite/add", middleware.RequireAuth, controllers.AddFavourite)

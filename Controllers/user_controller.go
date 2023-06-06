@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"coffee-shop.com/api/initializers"
+	"coffee-shop.com/api/models"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/naqeeb8a/Coffee-shop/initializers"
-	"github.com/naqeeb8a/Coffee-shop/models"
 	"golang.org/x/crypto/bcrypt"
 )
 

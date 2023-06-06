@@ -2,42 +2,37 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
+	"coffee-shop.com/api/initializers"
+	"coffee-shop.com/api/models"
 	"github.com/gin-gonic/gin"
-	"github.com/naqeeb8a/Coffee-shop/initializers"
-	"github.com/naqeeb8a/Coffee-shop/models"
 )
 
 func AddItem(c *gin.Context) {
-	var body struct {
-		Name        string
-		Image       string
-		Description string
-		Price       int
-		IsEnabled   bool
-		CategoryId  int
-	}
-
-	if (c.Bind(&body)) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
-		return
-	}
+	ItemImage, err := c.FormFile("image")
+	ItemName := c.PostForm("name")
+	ItemDescription := c.PostForm("description")
+	ItemPrice := c.PostForm("price")
+	ItemIsEnabled := c.PostForm("isEnabled")
+	ItemCategoryId := c.PostForm("categoryId")
 	var validationError = make(map[string]string)
-	if body.Name == "" {
+	if ItemName == "" {
 		validationError["name"] = "Please provide a name"
 	}
-	if body.Image == "" {
+	if err != nil {
 		validationError["image"] = "Please provide an image"
 	}
-	if body.Description == "" {
+	if ItemDescription == "" {
 		validationError["description"] = "Please provide a description"
 	}
-	if body.Price == 0 {
+	if ItemPrice == "" {
 		validationError["price"] = "Please provide an price"
 	}
-	if body.CategoryId == 0 {
+	if ItemIsEnabled == "" {
+		ItemIsEnabled = "true"
+	}
+	if ItemCategoryId == "" {
 		validationError["categoryId"] = "Please provide a category Id"
 	}
 	if len(validationError) != 0 {
@@ -47,7 +42,43 @@ func AddItem(c *gin.Context) {
 		})
 		return
 	}
-	item := models.Item{Name: body.Name, Image: body.Image, Description: body.Description, Price: body.Price, IsEnabled: body.IsEnabled, CategoryId: body.CategoryId}
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":    "failed to upload image",
+			"required": "provide a file in multipart form",
+		})
+		return
+	}
+	err = c.SaveUploadedFile(ItemImage, "assets/"+ItemImage.Filename)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":    "failed to upload image",
+			"required": "provide a file in multipart form",
+		})
+		return
+	}
+	price, intErr := strconv.Atoi(ItemPrice)
+	if intErr != nil {
+		c.AbortWithStatusJSON(401, gin.H{
+			"error": "Enter a valid price that can be parsed into integer",
+		})
+		return
+	}
+	categoyId, intErr := strconv.Atoi(ItemCategoryId)
+	if intErr != nil {
+		c.AbortWithStatusJSON(401, gin.H{
+			"error": "Enter a valid categoryId that can be parsed into integer",
+		})
+		return
+	}
+	isEnabled, boolErr := strconv.ParseBool(ItemIsEnabled)
+	if boolErr != nil {
+		c.AbortWithStatusJSON(401, gin.H{
+			"error": "Enter a valid boolean that can be parsed into bool",
+		})
+		return
+	}
+	item := models.Item{Name: ItemName, Image: "assets/" + ItemImage.Filename, Description: ItemDescription, Price: price, IsEnabled: isEnabled, CategoryId: categoyId}
 
 	result := initializers.DB.Create(&item)
 	if result.Error != nil {
@@ -58,30 +89,10 @@ func AddItem(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"name":        body.Name,
-		"image":       body.Image,
-		"description": body.Description,
-		"price":       body.Price,
-		"isEnabled":   body.IsEnabled,
-		"categoryId":  body.CategoryId,
+		"details": item,
 	})
 }
 func EditItem(c *gin.Context) {
-	var body struct {
-		Name        string
-		Image       string
-		Description string
-		Price       int
-		IsEnabled   bool
-		CategoryId  int
-	}
-
-	if (c.Bind(&body)) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
-		return
-	}
 	if c.Query("itemId") == "" {
 		c.AbortWithStatusJSON(401, gin.H{
 			"error":           "Query parameter (itemId) was not passed",
@@ -89,6 +100,20 @@ func EditItem(c *gin.Context) {
 		})
 		return
 	}
+	ItemImage, err := c.FormFile("image")
+	ItemName := c.PostForm("name")
+	ItemDescription := c.PostForm("description")
+	ItemPrice := c.PostForm("price")
+	ItemIsEnabled := c.PostForm("isEnabled")
+	ItemCategoryId := c.PostForm("categoryId")
+	if err != nil && ItemName == "" && ItemPrice == "" && ItemDescription == "" && ItemIsEnabled == "" && ItemCategoryId == "" {
+		c.AbortWithStatusJSON(401, gin.H{
+			"error":    "fields cannot be empty",
+			"required": "provide atleast one field",
+		})
+		return
+	}
+
 	var item models.Item
 	initializers.DB.First(&item, c.Query("itemId"))
 	if item.ID == 0 {
@@ -97,20 +122,59 @@ func EditItem(c *gin.Context) {
 		})
 		return
 	}
-	if body.Name != "" {
-		item.Name = body.Name
+	if ItemName != "" {
+		item.Name = ItemName
 	}
-	if body.Image != "" {
-		item.Image = body.Image
+	if err == nil && ItemImage.Filename != "" {
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error":    "failed to upload image",
+				"required": "provide a file in multipart form",
+			})
+			return
+		}
+		err = c.SaveUploadedFile(ItemImage, "assets/"+ItemImage.Filename)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error":    "failed to upload image",
+				"required": "provide a file in multipart form",
+			})
+			return
+		}
+		item.Image = "assets/" + ItemImage.Filename
 	}
-	if body.Description != "" {
-		item.Description = body.Description
+	if ItemDescription != "" {
+		item.Description = ItemDescription
 	}
-	if body.Price != 0 {
-		item.Price = body.Price
+	if ItemIsEnabled != "" {
+		isEnabled, boolErr := strconv.ParseBool(ItemIsEnabled)
+		if boolErr != nil {
+			c.AbortWithStatusJSON(401, gin.H{
+				"error": "Enter a valid boolean that can be parsed into bool",
+			})
+			return
+		}
+		item.IsEnabled = isEnabled
 	}
-	if body.CategoryId != 0 {
-		item.CategoryId = body.CategoryId
+	if ItemPrice != "" {
+		price, intErr := strconv.Atoi(ItemPrice)
+		if intErr != nil {
+			c.AbortWithStatusJSON(401, gin.H{
+				"error": "Enter a valid price that can be parsed into integer",
+			})
+			return
+		}
+		item.Price = price
+	}
+	if ItemCategoryId != "" {
+		categoyId, intErr := strconv.Atoi(ItemCategoryId)
+		if intErr != nil {
+			c.AbortWithStatusJSON(401, gin.H{
+				"error": "Enter a valid categoryId that can be parsed into integer",
+			})
+			return
+		}
+		item.CategoryId = categoyId
 	}
 	initializers.DB.Save(&item)
 	c.JSON(http.StatusOK, gin.H{
@@ -156,4 +220,24 @@ func ItemDetails(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"itemDetails": item})
+}
+func RemoveItem(c *gin.Context) {
+	if c.Query("itemId") == "" {
+		c.AbortWithStatusJSON(401, gin.H{
+			"error":           "Query parameter (itemId) was not passed",
+			"passed (itemId)": c.Query("itemId"),
+		})
+		return
+	}
+	result := initializers.DB.Unscoped().Delete(&models.Item{}, c.Query("itemId"))
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Error deleting item",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": "item deleted successfully",
+	})
 }

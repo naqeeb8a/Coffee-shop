@@ -12,6 +12,5 @@ type Item struct {
 	Price       int
 	IsEnabled   bool
 	CategoryId  int
-	Rating      int
-	IsFav       bool
+	Rating      int16
 }
